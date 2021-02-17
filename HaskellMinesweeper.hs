@@ -27,10 +27,11 @@ haskellminesweeper (Uncover (x,y)) (State uncovered covered flagged mines)
  | elem (x,y) mines   = EndOfGame False
  | [(x,y)] == covered = EndOfGame True
  | otherwise          =
-    ContinueAfterClear 0 (State ((x,y):uncovered)
-                                [e | e <- covered, e /= (x,y)]
-                                flagged
-                                mines) -- TODO finish
+    ContinueAfterClear (countbombs (x,y) mines)
+                       (State ((x,y):uncovered)
+                              [e | e <- covered, e /= (x,y)]
+                              flagged
+                              mines)
 haskellminesweeper (Flag (x,y)) (State uncovered covered flagged mines)
  | elem (x,y) flagged =
     ContinueAfterFlag (State uncovered
@@ -39,6 +40,14 @@ haskellminesweeper (Flag (x,y)) (State uncovered covered flagged mines)
                              mines)
  | otherwise          =
     ContinueAfterFlag (State uncovered covered ((x,y):flagged) mines)
+
+countbombs :: Coordinate -> [Coordinate] -> Int
+countbombs (x,y) m =
+ foldr (\ (x1,y1) acc -> if areadjacent (x,y) (x1,y1) then acc+1 else acc) 0 m
+
+areadjacent :: Coordinate -> Coordinate -> Bool
+areadjacent (x,y) (x1,y1) =
+ ((x1 >= (x-1)) && (x1 <= (x+1)) && (y1 >= (y-1)) && (y1 <= (y+1)))
 
 {--
 Test cases
