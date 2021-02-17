@@ -1,4 +1,4 @@
--- TODO document file
+-- Underlying game framework
 module HaskellMinesweeper where
 
 data State = State [Coordinate] -- Uncovered cells
@@ -24,27 +24,31 @@ type Coordinate = (Int, Int)
 
 haskellminesweeper :: Game
 haskellminesweeper (Uncover (x,y)) (State uncovered covered flagged mines)
- | elem (x,y) mines   = EndOfGame False
- | [(x,y)] == covered = EndOfGame True
+ | elem (x,y) mines   = EndOfGame False -- Uncovered a mine
+ | [(x,y)] == covered = EndOfGame True  -- Uncovered last covered cell
  | otherwise          =
-    ContinueAfterClear (countbombs (x,y) mines)
+    ContinueAfterClear (countmines (x,y) mines)
                        (State ((x,y):uncovered)
                               [e | e <- covered, e /= (x,y)]
                               flagged
                               mines)
 haskellminesweeper (Flag (x,y)) (State uncovered covered flagged mines)
- | elem (x,y) flagged =
+ | elem (x,y) flagged = -- Unflag flagged cell
     ContinueAfterFlag (State uncovered
                              covered
                              [e | e <- flagged, e /= (x,y)]
                              mines)
- | otherwise          =
+ | otherwise          = -- Flag unflagged cell
     ContinueAfterFlag (State uncovered covered ((x,y):flagged) mines)
 
-countbombs :: Coordinate -> [Coordinate] -> Int
-countbombs (x,y) m =
+-- Counts the number of mines adjacent to some coordinate
+countmines :: Coordinate   -- Coordinate to count adjacent mines for
+           -> [Coordinate] -- Coordinates of all mines
+           -> Int
+countmines (x,y) m =
  foldr (\ (x1,y1) acc -> if areadjacent (x,y) (x1,y1) then acc+1 else acc) 0 m
 
+-- Returns True if two coordinates are adjacent
 areadjacent :: Coordinate -> Coordinate -> Bool
 areadjacent (x,y) (x1,y1) =
  ((x1 >= (x-1)) && (x1 <= (x+1)) && (y1 >= (y-1)) && (y1 <= (y+1)))
