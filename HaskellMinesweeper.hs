@@ -27,7 +27,10 @@ haskellminesweeper (Uncover (x,y)) (State uncovered covered flagged mines)
  | elem (x,y) mines   = EndOfGame False
  | [(x,y)] == covered = EndOfGame True
  | otherwise          =
-    ContinueAfterClear 0 (State [] [] [] mines) -- TODO finish
+    ContinueAfterClear 0 (State ((x,y):uncovered)
+                                [e | e <- covered, e /= (x,y)]
+                                flagged
+                                mines) -- TODO finish
 haskellminesweeper (Flag (x,y)) (State uncovered covered flagged mines)
  | elem (x,y) flagged =
     ContinueAfterFlag (State uncovered
@@ -57,7 +60,7 @@ haskellminesweeper (Flag (1,1)) (State [(0,0),(0,1)] [(1,1)] [] [(1,0)])
 haskellminesweeper (Flag (1,1)) (State [(0,0),(0,1)] [(1,1)] [(1,1)] [(1,0)])
 == ContinueAfterFlag (State [(0,0),(0,1)] [(1,1)] [] [(1,0)])
 
-haskellminesweeper (Uncover (1,1)) (State [(0,0),(0,1)] [] [(1,1)] [(1,0)])
+haskellminesweeper (Uncover (1,1)) (State [(0,0),(0,1)] [(1,1)] [(1,1)] [(1,0)])
 == EndOfGame True
 
 haskellminesweeper (Uncover (2,2)) (State [(0,1)] [(0,2),(1,0),(1,1),(1,2),(2,0),(2,1),(2,2)] [] [(0,0)])
@@ -69,7 +72,7 @@ haskellminesweeper (Uncover (1,1)) (State [(0,1)] [(0,2),(1,0),(1,1),(1,2),(2,0)
 haskellminesweeper (Uncover (1,1)) (State [(0,1)] [(0,2),(1,1),(2,0),(2,1),(2,2)] [] [(0,0),(1,0),(1,2)])
 == ContinueAfterClear 3 (State [(1,1),(0,1)] [(0,2),(2,0),(2,1),(2,2)] [] [(0,0),(1,0),(1,2)])
 
-haskellminesweeper (Uncover (1,1) (State [] [(0,1),(1,1)] [] [(0,0),(0,2),(1,0),(1,2),(2,0),(2,1),(2,2)])
+haskellminesweeper (Uncover (1,1)) (State [] [(0,1),(1,1)] [] [(0,0),(0,2),(1,0),(1,2),(2,0),(2,1),(2,2)])
 == ContinueAfterClear 7 (State [(1,1)] [(0,1)] [] [(0,0),(0,2),(1,0),(1,2),(2,0),(2,1),(2,2)])
 --}
 
