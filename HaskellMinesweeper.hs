@@ -2,9 +2,10 @@
 module HaskellMinesweeper where
 
 data State = State [Coordinate] -- Uncovered cells
-                   [Coordinate] -- Unflagged covered cells
-                   [Coordinate] -- Flagged covered cells
-                   [Coordinate] -- Mines (can overlap with flagged cells)
+                   [Coordinate] -- Covered cells
+                   [Coordinate] -- Flagged cells (can overlap with covered
+                                -- and mines).
+                   [Coordinate] -- Mines
   deriving (Show)
 
 data Result = EndOfGame Bool               -- True means victory
@@ -22,21 +23,19 @@ data Action = Flag Coordinate    -- Flag or unflag a cell
 type Coordinate = (Int, Int)
 
 haskellminesweeper :: Game
-haskellminesweeper (Uncover (x,y)) (State uncovered unflagged flagged mines)
- | elem (x,y) mines                  = EndOfGame False
- | [(x,y)] == (unflagged ++ flagged) = EndOfGame True
- | otherwise                         = ContinueAfterClear 0 (State [] [] [] []) -- TODO finish
-haskellminesweeper (Flag (x,y)) (State uncovered unflagged flagged mines)
+haskellminesweeper (Uncover (x,y)) (State uncovered covered flagged mines)
+ | elem (x,y) mines   = EndOfGame False
+ | [(x,y)] == covered = EndOfGame True
+ | otherwise          =
+    ContinueAfterClear 0 (State [] [] [] mines) -- TODO finish
+haskellminesweeper (Flag (x,y)) (State uncovered covered flagged mines)
  | elem (x,y) flagged =
     ContinueAfterFlag (State uncovered
-                             ((x,y):unflagged)
+                             covered
                              [e | e <- flagged, e /= (x,y)]
                              mines)
  | otherwise          =
-    ContinueAfterFlag (State uncovered
-                             [e | e <- unflagged, e /= (x,y)]
-                             ((x,y):flagged)
-                             mines)
+    ContinueAfterFlag (State uncovered covered ((x,y):flagged) mines)
 
 {--
 Test cases
@@ -53,9 +52,9 @@ haskellminesweeper (Flag (1,0)) (State [(0,0),(0,1)] [(1,1)] [] [(1,0)])
 == ContinueAfterFlag (State [(0,0),(0,1)] [(1,1)] [(1,0)] [(1,0)]
 
 haskellminesweeper (Flag (1,1)) (State [(0,0),(0,1)] [(1,1)] [] [(1,0)])
-== ContinueAfterFlag (State [(0,0),(0,1)] [] [(1,1)] [(1,0)])
+== ContinueAfterFlag (State [(0,0),(0,1)] [(1,1)] [(1,1)] [(1,0)])
 
-haskellminesweeper (Flag (1,1)) (State [(0,0),(0,1)] [] [(1,1)] [(1,0)])
+haskellminesweeper (Flag (1,1)) (State [(0,0),(0,1)] [(1,1)] [(1,1)] [(1,0)])
 == ContinueAfterFlag (State [(0,0),(0,1)] [(1,1)] [] [(1,0)])
 
 haskellminesweeper (Uncover (1,1)) (State [(0,0),(0,1)] [] [(1,1)] [(1,0)])
