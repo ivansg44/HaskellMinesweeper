@@ -103,10 +103,11 @@ gridLocations n = [(x,y) | x <- [0..n-1], y <- [0..n-1]]
 randomIndices :: Int                -- gridSize
                -> Int               -- number of Indexes (mines)
                -> IO [Int]          -- list of indexes
-randomIndices gridSize num =
-    do
-        g <- newStdGen
-        return $ take num $ nub $ randomRs (0, gridSize*gridSize - 1 :: Int) g
+randomIndices _ 0 = return []
+randomIndices gridSize n = do
+  r  <- randomRIO (0,gridSize*gridSize-1)
+  rs <- randomIndices gridSize (n-1)
+  return (r:rs) 
 
 
 -- Returns gridLocations at indicated indexes
@@ -126,6 +127,7 @@ randomBombLocations gridSize num =
     do
         indexes <- randomIndices gridSize num
         return $ returnBombLocation 0 indexes $ gridLocations gridSize
+
 
 
 -- Tests
