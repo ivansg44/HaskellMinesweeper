@@ -1,5 +1,6 @@
 -- Underlying game framework
 module HaskellMinesweeper where
+import System.Random
 
 data State = State [Coordinate] -- Uncovered cells
                    [Coordinate] -- Covered cells
@@ -88,4 +89,21 @@ haskellminesweeper (Uncover (1,1)) (State [(0,1)] [(0,2),(1,1),(2,0),(2,1),(2,2)
 haskellminesweeper (Uncover (1,1)) (State [] [(0,1),(1,1)] [] [(0,0),(0,2),(1,0),(1,2),(2,0),(2,1),(2,2)])
 == ContinueAfterClear 7 (State [(1,1)] [(0,1)] [] [(0,0),(0,2),(1,0),(1,2),(2,0),(2,1),(2,2)])
 --}
+
+
+-- Cell x y coordinates
+type Coordinate2 = (IO Int, IO Int)
+
+-- Creates a tuple of IO Ints within the bounds of a grid size n
+-- Random Integers are only possible through IO Int
+randomSingleMine :: Int -> Coordinate2
+randomSingleMine n = (randomRIO (0,n), randomRIO (0,n))
+
+-- Creates a list of size = mineCount, and individual mines within the grid
+-- Does not deal with duplicate mines as of yet
+randomMineList :: Int -> Int -> [Coordinate2]
+randomMineList mineCount gridSize
+   |mineCount == 0 = []
+   |otherwise = (randomSingleMine gridSize):randomMineList(mineCount - 1) gridSize
+
 
