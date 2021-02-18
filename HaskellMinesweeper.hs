@@ -91,6 +91,10 @@ haskellminesweeper (Uncover (1,1)) (State [] [(0,1),(1,1)] [] [(0,0),(0,2),(1,0)
 --}
 
 
+
+------------------------------------------------------------------------------------------------------------------
+-- How would I be able to show/print my results on the terminal?
+
 -- Cell x y coordinates
 type Coordinate2 = (IO Int, IO Int)
 
@@ -105,5 +109,4 @@ randomMineList :: Int -> Int -> [Coordinate2]
 randomMineList mineCount gridSize
    |mineCount == 0 = []
    |otherwise = (randomSingleMine gridSize):randomMineList(mineCount - 1) gridSize
-
 
