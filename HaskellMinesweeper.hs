@@ -1,6 +1,7 @@
 -- Underlying game framework
 module HaskellMinesweeper where
 import System.Random
+import Data.List
 
 data State = State [Coordinate] -- Uncovered cells
                    [Coordinate] -- Covered cells
@@ -91,22 +92,52 @@ haskellminesweeper (Uncover (1,1)) (State [] [(0,1),(1,1)] [] [(0,0),(0,2),(1,0)
 --}
 
 
+-------------------------------------------------------------------------------------------------------------------------
 
-------------------------------------------------------------------------------------------------------------------
--- How would I be able to show/print my results on the terminal?
+-- Generates a list of tuple coordinates of the entire grid of size n 
+gridLocations :: Int                -- Grid Size
+                -> [(Int, Int)]     -- Output gridLocations
+gridLocations n = [(x,y) | x <- [0..n-1], y <- [0..n-1]]
 
--- Cell x y coordinates
-type Coordinate2 = (IO Int, IO Int)
+-- Genertes random list of numbers that lie within 0-total grid squares
+randomIndices :: Int                -- gridSize
+               -> Int               -- number of Indexes (mines)
+               -> IO [Int]          -- list of indexes
+randomIndices gridSize num =
+    do
+        g <- newStdGen
+        return $ take num $ nub $ randomRs (0, gridSize*gridSize - 1 :: Int) g
 
--- Creates a tuple of IO Ints within the bounds of a grid size n
--- Random Integers are only possible through IO Int
-randomSingleMine :: Int -> Coordinate2
-randomSingleMine n = (randomRIO (0,n), randomRIO (0,n))
 
--- Creates a list of size = mineCount, and individual mines within the grid
--- Does not deal with duplicate mines as of yet
-randomMineList :: Int -> Int -> [Coordinate2]
-randomMineList mineCount gridSize
-   |mineCount == 0 = []
-   |otherwise = (randomSingleMine gridSize):randomMineList(mineCount - 1) gridSize
+-- Returns gridLocations at indicated indexes
+returnBombLocation :: Int                -- Counter to make sure we reached end of list
+                  -> [Int]             -- List of Indexes to check
+                  -> [(Int,Int)]       -- List of gridLocations to check
+                  -> [(Int, Int)]      -- Outputed gridLocations at said indexes
+returnBombLocation a indexes positions
+    | a /= length indexes = positions !! (indexes !! a) : returnBombLocation (a+1) indexes positions
+    | otherwise = []        
 
+-- Function to create a random mine positions list
+randomBombLocations :: Int             -- gridSize
+                  -> Int               -- number of mines
+                  -> IO [(Int, Int)]   -- list of bomb locations
+randomBombLocations gridSize num = 
+    do
+        indexes <- randomIndices gridSize num
+        return $ returnBombLocation 0 indexes $ gridLocations gridSize
+
+
+-- Tests
+
+-- exampleGrid = gridLocations 4
+-- == [(0,0),(0,1),(0,2),(0,3),(1,0),(1,1),(1,2),(1,3),(2,0),(2,1),(2,2),(2,3),(3,0),(3,1),(3,2),(3,3)]
+
+-- indices = randomIndices 4 4
+-- indices == [different every time]
+
+-- bombLocations = returnBombLocation  0 [0, 10, 1, 14] exampleGrid
+-- [(0,0),(2,2),(0,1),(3,2)]
+
+-- exampleRandomBombs = randomBombLocations 10 10 
+-- exampleRandomBombs = [different every time]
