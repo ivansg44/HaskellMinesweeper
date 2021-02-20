@@ -96,7 +96,7 @@ haskellminesweeper (Uncover (1,1)) (State [] [(0,1),(1,1)] [] [(0,0),(0,2),(1,0)
 
 -- Generates a list of tuple coordinates of the entire grid of size n 
 gridLocations :: Int                -- Grid Size
-                -> [(Int, Int)]     -- Output gridLocations
+                -> [Coordinate]     -- Output gridLocations
 gridLocations n = [(x,y) | x <- [0..n-1], y <- [0..n-1]]
 
 -- Genertes random list of numbers that lie within 0-total grid squares
@@ -104,17 +104,19 @@ randomIndices :: Int                -- gridSize
                -> Int               -- number of Indexes (mines)
                -> IO [Int]          -- list of indexes
 randomIndices _ 0 = return []
-randomIndices gridSize n = do
-  r  <- randomRIO (0,gridSize*gridSize-1)
-  rs <- randomIndices gridSize (n-1)
-  return (r:rs) 
+randomIndices gridSize num =
+    do
+        g <- newStdGen                                                      -- generate random "seed"
+        return $ take num $ nub $ randomRs (0, gridSize*gridSize - 1) g     -- randomRs create infinite list given a "seed" value g,
+                                                                            -- nub removes duplicates, then take the necessary amount
+                                                                            
 
 
 -- Returns gridLocations at indicated indexes
 returnBombLocation :: Int                -- Counter to make sure we reached end of list
                   -> [Int]             -- List of Indexes to check
-                  -> [(Int,Int)]       -- List of gridLocations to check
-                  -> [(Int, Int)]      -- Outputed gridLocations at said indexes
+                  -> [Coordinate]       -- List of gridLocations to check
+                  -> [Coordinate]      -- Outputed gridLocations at said indexes
 returnBombLocation a indexes positions
     | a /= length indexes = positions !! (indexes !! a) : returnBombLocation (a+1) indexes positions
     | otherwise = []        
@@ -122,12 +124,11 @@ returnBombLocation a indexes positions
 -- Function to create a random mine positions list
 randomBombLocations :: Int             -- gridSize
                   -> Int               -- number of mines
-                  -> IO [(Int, Int)]   -- list of bomb locations
+                  -> IO [Coordinate]   -- list of bomb locations
 randomBombLocations gridSize num = 
     do
         indexes <- randomIndices gridSize num
         return $ returnBombLocation 0 indexes $ gridLocations gridSize
-
 
 
 -- Tests
@@ -143,3 +144,35 @@ randomBombLocations gridSize num =
 
 -- exampleRandomBombs = randomBombLocations 10 10 
 -- exampleRandomBombs = [different every time]
+
+
+--------------------------------------------------------------------------------------------------------------
+
+--Test board sizes can change later
+easyGameBoard = 5
+mediumGameBoard = 7
+hardGameBoard = 10
+
+-- IDK might be useful, I was using this to test things out before
+generateState :: [Coordinate] -> [Coordinate] -> [Coordinate] -> [Coordinate] -> State
+generateState  = State
+
+
+
+-- Essentially bomb generation code,
+initialState :: Int            
+                  -> Int               
+                  -> IO State  
+initialState gridSize num = 
+    do
+        indexes <- randomIndices gridSize num
+        return $ State [] (gridLocations gridSize) [] (returnBombLocation 0 indexes $ gridLocations gridSize)
+
+
+-- Test
+--  exampleStart = initialState 3 3
+-- savedStart = exampleStart
+
+-- Issue: You cannot "save" a random number
+-- store a random number to a variable
+-- run that variable multiple times and we get multiple answers.
