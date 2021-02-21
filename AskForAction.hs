@@ -41,8 +41,8 @@ invalidrangemsg state size =
   askforaction state size
 
 invalidflag :: Action -> State -> Bool
-invalidflag (Uncover _) state = False
 invalidflag (Flag coord) (State uncovered _ _ _) = elem coord uncovered
+invalidflag _ _ = False
 
 invalidflagmsg :: State -> Int -> IO Action
 invalidflagmsg state size =

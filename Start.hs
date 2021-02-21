@@ -28,11 +28,35 @@ play state size oldboard =
   putStrLn oldboard
   action <- askforaction state 4
   result <- return (haskellminesweeper action state)
-  continue (getcoords action) result size oldboard
+  if endgame result then
+   finish result state oldboard
+  else
+   continue (getcoords action) result size oldboard
 
--- TODO in action verify flag isn't on uncovered (can pass state)
--- TODO end game (more patterns in continue)
 -- TODO clear adjacent cells
+
+finish :: Result -> State -> [Char] -> IO ()
+finish (EndOfGame win) oldstate oldboard =
+ do
+  if win then
+   printwinnerboard oldstate oldboard
+  else
+   printloserboard oldstate oldboard
+
+printwinnerboard :: State -> [Char] -> IO ()
+printwinnerboard (State _ [last] _ mines) oldboard =
+ do
+  lastval <- return (countmines last mines)
+  new <- return (printnewboard last (head (show lastval)) oldboard)
+  putStrLn new
+  putStrLn "You win."
+
+printloserboard :: State -> [Char] -> IO ()
+printloserboard (State _ _ _ mines) oldboard =
+ do
+  new <- return (foldr (\ e acc -> printnewboard e '#' acc) oldboard mines)
+  putStrLn new
+  putStrLn "You lose."
 
 continue :: Coordinate -> Result -> Int -> [Char] -> IO ()
 continue coord (ContinueAfterClear val state) size oldboard =

@@ -61,6 +61,11 @@ getcoords :: Action -> Coordinate
 getcoords (Flag coord) = coord
 getcoords (Uncover coord) = coord
 
+--TODO document this useful function
+endgame :: Result -> Bool
+endgame (EndOfGame _) = True
+endgame _             = False
+
 {--
 Test cases
 
