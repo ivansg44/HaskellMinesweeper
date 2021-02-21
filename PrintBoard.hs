@@ -6,7 +6,6 @@ module PrintBoard where
 
 import HaskellMinesweeper
 
-
 printinitboard :: Int -> [Char]
 printinitboard size = foldl (\ acc e -> acc ++ ['\n'] ++ e) h t
  where (h:t) = printinitboardrows size

@@ -20,6 +20,7 @@ type Game = Action -> State -> Result
 
 data Action = Flag Coordinate    -- Flag or unflag a cell
             | Uncover Coordinate -- Uncover a cell
+  deriving (Read,Show)
 
 -- Cell x y coordinates
 type Coordinate = (Int, Int)
@@ -54,6 +55,11 @@ countmines (x,y) m =
 areadjacent :: Coordinate -> Coordinate -> Bool
 areadjacent (x,y) (x1,y1) =
  ((x1 >= (x-1)) && (x1 <= (x+1)) && (y1 >= (y-1)) && (y1 <= (y+1)))
+
+--TODO document this useful function
+getcoords :: Action -> Coordinate
+getcoords (Flag coord) = coord
+getcoords (Uncover coord) = coord
 
 {--
 Test cases
