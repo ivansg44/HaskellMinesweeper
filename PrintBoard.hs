@@ -45,8 +45,8 @@ printnewboardhelper :: Coordinate -> Char -> [Char] -> Int -> Int -> [Char]
 printnewboardhelper _ _ [] _ _ = []
 printnewboardhelper coord newval (h:t) xacc yacc
  | coord == (xacc,yacc) = newval:t
- | h == '\n'            = h:(printnewboardhelper coord newval t 0 (yacc+1))
- | otherwise            = h:(printnewboardhelper coord newval t (xacc+1) yacc)
+ | h == '\n'            = h:(printnewboardhelper coord newval t (xacc+1) 0)
+ | otherwise            = h:(printnewboardhelper coord newval t xacc (yacc+1))
 
 {---
 Test cases

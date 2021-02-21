@@ -5,11 +5,11 @@ import AskForAction
 import HaskellMinesweeper
 import PrintBoard
 
-startstate = State [      (0,1),(0,2),(0,3),
+startstate = State []
+                   [      (0,1),(0,2),(0,3),
                     (1,0),(1,1),      (1,3),
                     (2,0),(2,1),(2,2),(2,3),
                     (3,0),(3,1),      (3,3)]
-                   []
                    []
                    [(0,0),                 
                                 (1,2),     
@@ -26,7 +26,7 @@ play :: State -> Int -> [Char] -> IO ()
 play state size oldboard =
  do
   putStrLn oldboard
-  action <- askforaction 4
+  action <- askforaction state 4
   result <- return (haskellminesweeper action state)
   continue (getcoords action) result size oldboard
 
