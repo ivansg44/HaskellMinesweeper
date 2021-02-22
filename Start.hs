@@ -5,6 +5,7 @@ import AskForAction
 import HaskellMinesweeper
 import PrintBoard
 
+{--
 startstate = State []
                    [      (0,1),(0,2),(0,3),
                     (1,0),(1,1),      (1,3),
@@ -15,6 +16,14 @@ startstate = State []
                                 (1,2),     
                                            
                                 (3,2)      ]
+--}
+startstate = State []
+                   [      (0,1),(0,2),(0,3),
+                    (1,0),(1,1),(1,2),(1,3),
+                    (2,0),(2,1),(2,2),(2,3),
+                    (3,0),(3,1),(3,2),(3,3)]
+                   []
+                   [(0,0)]
 
 start :: IO ()
 start =
@@ -59,8 +68,15 @@ printloserboard (State _ _ _ mines) oldboard =
   putStrLn "You lose."
 
 continue :: Coordinate -> Result -> Int -> [Char] -> IO ()
-continue coord (ContinueAfterClear val state) size oldboard =
- play state size (printnewboard coord (head (show val)) oldboard)
+continue coord (ContinueAfterClear val (State u c f m)) size oldboard =
+ if val == 0 then
+  continueafterzero [e | e <- todo, not (elem e u)]
+                    (State u c f m)
+                    size
+                    (printnewboard coord '0' oldboard)
+ else
+  play (State u c f m) size (printnewboard coord (head (show val)) oldboard)
+ where todo = (getadjacentcoords coord size)
 continue coord
          (ContinueAfterFlag (State uncovered covered flagged mines))
          size
@@ -73,4 +89,29 @@ continue coord
   play (State uncovered covered flagged mines)
        size
        (printnewboard coord '-' oldboard)
+
+continueafterzero :: [Coordinate] -> State -> Int -> [Char] -> IO ()
+continueafterzero [] state size board = play state size board
+continueafterzero (h:t) state size board =
+ continueafterzerohelper h
+                         (haskellminesweeper (Uncover h) state)
+                         t
+                         state
+                         size
+                         board
+
+continueafterzerohelper :: Coordinate
+                        -> Result
+                        -> [Coordinate]
+                        -> State
+                        -> Int
+                        -> [Char]
+                        -> IO ()
+continueafterzerohelper h (ContinueAfterClear 0 (State u c f m)) t _ size oldboard =
+ continueafterzero (t ++ [e | e <- todo, not (elem e u) && not (elem e t)])
+                   (State u c f m)
+                   size
+                   (printnewboard h '0' oldboard)
+ where todo = (getadjacentcoords h size)
+continueafterzerohelper _ _ t state size oldboard = continueafterzero t state size oldboard
 

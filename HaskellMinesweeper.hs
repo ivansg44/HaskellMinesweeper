@@ -45,6 +45,7 @@ haskellminesweeper (Flag (x,y)) (State uncovered covered flagged mines)
     ContinueAfterFlag (State uncovered covered ((x,y):flagged) mines)
 
 -- Counts the number of mines adjacent to some coordinate
+-- TODO utilize getadjacentcoords for cleaner code
 countmines :: Coordinate   -- Coordinate to count adjacent mines for
            -> [Coordinate] -- Coordinates of all mines
            -> Int
@@ -65,6 +66,20 @@ getcoords (Uncover coord) = coord
 endgame :: Result -> Bool
 endgame (EndOfGame _) = True
 endgame _             = False
+
+--TODO document this useful function
+getadjacentcoords :: Coordinate -> Int -> [Coordinate]
+getadjacentcoords (x,y) size = [(a,b) | (a,b) <- lst,
+                                        (elem a [0..(size-1)])
+                                         && (elem b [0..(size-1)])]
+ where lst = [((x-1),y),
+              ((x-1),(y-1)),
+              ((x-1),(y+1)),
+              (x,(y-1)),
+              (x,(y+1)),
+              ((x+1),y),
+              ((x+1),(y-1)),
+              ((x+1),(y+1))]
 
 {--
 Test cases
