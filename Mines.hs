@@ -15,28 +15,19 @@ randomIndices _ 0 = return []
 randomIndices gridSize num =
     do
         g <- newStdGen                                                      -- generate random "seed"
-        return $ take num $ nub $ randomRs (0, gridSize*gridSize - 1) g     -- randomRs create infinite list given a "seed" value g,
-                                                                            -- nub removes duplicates, then take the necessary amount
+        let infList = randomRs (0, gridSize*gridSize-1) g                   -- randomRs create infinite list given a "seed" value g,
+        return (take num (nub infList))                                     -- nub removes duplicates, then take the necessary amount
                                                                             
 
 
 -- Returns gridLocations at indicated indexes
-returnBombLocation :: Int                -- Counter to make sure we reached end of list
+returnBombLocation :: Int              -- Counter to make sure we reached end of list
                   -> [Int]             -- List of Indexes to check
-                  -> [Coordinate]       -- List of gridLocations to check
+                  -> [Coordinate]      -- List of gridLocations to check
                   -> [Coordinate]      -- Outputed gridLocations at said indexes
-returnBombLocation a indexes positions
-    | a /= length indexes = positions !! (indexes !! a) : returnBombLocation (a+1) indexes positions
+returnBombLocation counter indexes positions
+    | counter /= length indexes = positions !! (indexes !! counter) : returnBombLocation (counter+1) indexes positions
     | otherwise = []        
-
--- Function to create a random mine positions list
-randomBombLocations :: Int             -- gridSize
-                  -> Int               -- number of mines
-                  -> IO [Coordinate]   -- list of bomb locations
-randomBombLocations gridSize num = 
-    do
-        indexes <- randomIndices gridSize num
-        return $ returnBombLocation 0 indexes $ gridLocations gridSize
 
 
 -- Tests
@@ -53,28 +44,15 @@ randomBombLocations gridSize num =
 -- exampleRandomBombs = randomBombLocations 10 10 
 -- exampleRandomBombs = [different every time]
 
-
---------------------------------------------------------------------------------------------------------------
-
---Test board sizes can change later
-easyGameBoard = 5
-mediumGameBoard = 7
-hardGameBoard = 10
-
--- IDK might be useful, I was using this to test things out before
-generateState :: [Coordinate] -> [Coordinate] -> [Coordinate] -> [Coordinate] -> State
-generateState  = State
-
-
-
+------------------------------------------------------------------------------------------------------
 -- Essentially bomb generation code,
 initialState :: Int            
                   -> Int               
                   -> IO State  
 initialState gridSize num = 
     do
-        indexes <- randomIndices gridSize num
-        return $ State [] (gridLocations gridSize) [] (returnBombLocation 0 indexes $ gridLocations gridSize)
+        indices <- randomIndices gridSize num
+        return (State [] (gridLocations gridSize) [] (returnBombLocation 0 indices (gridLocations gridSize)))
 
 
 -- Test
