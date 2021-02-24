@@ -25,9 +25,9 @@ invalidactionmsg :: State -> Int -> IO Action
 invalidactionmsg state size =
  do
   putStrLn "Please use the following formats:"
-  putStrLn "Flag (x,y)"
-  putStrLn "Uncover (x,y)"
-  putStrLn ("...where x and y are integers less than " ++ (show size))
+  putStrLn "Flag (row,column)"
+  putStrLn "Uncover (row,column)"
+  putStrLn ("...where row and column are integers less than " ++ (show size))
   askforaction state size
 
 invalidrange :: Coordinate -> Int -> Bool
@@ -37,7 +37,7 @@ invalidrangemsg :: State -> Int -> IO Action
 invalidrangemsg state size =
  do
   putStrLn "Out of bounds."
-  putStrLn ("x and y must be integers less than " ++ (show size))
+  putStrLn ("row and column must be integers less than " ++ (show size))
   askforaction state size
 
 invalidflag :: Action -> State -> Bool

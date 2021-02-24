@@ -5,7 +5,7 @@ import AskForAction
 import HaskellMinesweeper
 import PrintBoard
 
-{--
+
 startstate = State []
                    [      (0,1),(0,2),(0,3),
                     (1,0),(1,1),      (1,3),
@@ -16,26 +16,27 @@ startstate = State []
                                 (1,2),     
                                            
                                 (3,2)      ]
---}
-startstate = State []
-                   [      (0,1),(0,2),(0,3),
-                    (1,0),(1,1),(1,2),(1,3),
-                    (2,0),(2,1),(2,2),(2,3),
-                    (3,0),(3,1),(3,2),(3,3)]
-                   []
-                   [(0,0)]
+
+-- startstate = State []
+--                    [      (0,1),(0,2),(0,3),
+--                     (1,0),(1,1),(1,2),(1,3),
+--                     (2,0),(2,1),(2,2),(2,3),
+--                     (3,0),(3,1),(3,2),(3,3)]
+--                    []
+--                    [(0,0)]
 
 start :: IO ()
 start =
  do
-  let initboard = printinitboard 4
-  play startstate 4 initboard
+  let initboard = printinitboard 10
+  mines <- initialState 10 10
+  play mines 10 initboard
 
 play :: State -> Int -> [Char] -> IO ()
 play state size oldboard =
  do
   putStrLn oldboard
-  action <- askforaction state 4
+  action <- askforaction state 10
   result <- return (haskellminesweeper action state)
   if endgame result then
    finish result state oldboard
