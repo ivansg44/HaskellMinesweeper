@@ -4,6 +4,8 @@ module Start where
 import AskForAction
 import HaskellMinesweeper
 import PrintBoard
+import Mines
+import UserInitialization
 
 
 startstate = State []
@@ -25,18 +27,28 @@ startstate = State []
 --                    []
 --                    [(0,0)]
 
+-- start :: IO ()
+-- start =
+--  do
+--   let initboard = printinitboard 10
+--   mines <- initialState 10 10
+--   play mines 10 initboard
+
+
 start :: IO ()
 start =
  do
-  let initboard = printinitboard 10
-  mines <- initialState 10 10
-  play mines 10 initboard
+  size <- userGridSize
+  mineCount <- userMineCount size
+  let initboard = printinitboard size
+  mines <- initialState size mineCount
+  play mines size initboard
 
 play :: State -> Int -> [Char] -> IO ()
 play state size oldboard =
  do
   putStrLn oldboard
-  action <- askforaction state 10
+  action <- askforaction state size
   result <- return (haskellminesweeper action state)
   if endgame result then
    finish result state oldboard

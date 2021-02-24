@@ -30,8 +30,10 @@ invalidactionmsg state size =
   putStrLn ("...where row and column are integers less than " ++ (show size))
   askforaction state size
 
+-- invalidrange :: Coordinate -> Int -> Bool
+-- invalidrange (x,y) size = (x >= size) && (y >= size)
 invalidrange :: Coordinate -> Int -> Bool
-invalidrange (x,y) size = (x >= size) && (y >= size)
+invalidrange (x,y) size = (x >= size) || (y >= size) || (x < 0) || (y < 0)
 
 invalidrangemsg :: State -> Int -> IO Action
 invalidrangemsg state size =
