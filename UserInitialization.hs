@@ -36,7 +36,7 @@ userMineCount board = do
                     return mines
 
 invalidMineCount :: Int -> Int -> Bool
-invalidMineCount mines gridSize = (mines < 0) || (mines > gridSize*gridSize)
+invalidMineCount mines gridSize = (mines < 0) || (mines >= gridSize*gridSize)
 
 
              
