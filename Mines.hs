@@ -24,13 +24,14 @@ randomIndices gridSize num =
 
 
 -- Returns gridLocations at indicated indices
-returnBombLocation :: Int              -- Counter to make sure we reached end of list
-                  -> [Int]             -- List of Indexes to check
+returnBombLocation :: [Int]             -- List of Indexes to check
                   -> [Coordinate]      -- List of gridLocations to check
                   -> [Coordinate]      -- Outputed gridLocations at said indexes
-returnBombLocation counter indices grid
-    | counter < length indices = grid !! (indices !! counter) : returnBombLocation (counter+1) indices grid
-    | otherwise = []        
+returnBombLocation (x:xs) grid
+    |null xs = [grid !! x]
+    |(x:xs) /= [] =  grid !! x : returnBombLocation xs grid
+    |otherwise = []
+    
 
 
 
@@ -41,7 +42,7 @@ randomBombLocations :: Int             -- gridSize
 randomBombLocations gridSize num = 
     do
         indices <- randomIndices gridSize num
-        return (returnBombLocation 0 indices (gridLocations gridSize))
+        return (returnBombLocation indices (gridLocations gridSize))
 
 
 -- Creates initial game state of 4 [Coordinate]
