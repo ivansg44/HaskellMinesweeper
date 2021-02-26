@@ -30,6 +30,18 @@ returnBombLocation counter indexes positions
     | otherwise = []        
 
 
+
+-- Function to create a random mine positions list
+randomBombLocations :: Int             -- gridSize
+                  -> Int               -- number of mines
+                  -> IO [Coordinate]   -- list of bomb locations
+randomBombLocations gridSize num = 
+    do
+        indexes <- randomIndices gridSize num
+        return $ returnBombLocation 0 indexes $ gridLocations gridSize
+
+
+
 -- Tests
 
 -- exampleGrid = gridLocations 4
@@ -52,7 +64,10 @@ initialState :: Int
 initialState gridSize num = 
     do
         indices <- randomIndices gridSize num
-        return (State [] (gridLocations gridSize) [] (returnBombLocation 0 indices (gridLocations gridSize)))
+        mines <- randomBombLocations gridSize num
+        let covered = gridLocations gridSize \\ mines
+        return (State [] covered [] mines)
+
 
 
 -- Test
