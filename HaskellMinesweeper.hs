@@ -45,7 +45,6 @@ haskellminesweeper (Flag (x,y)) (State uncovered covered flagged mines)
     ContinueAfterFlag (State uncovered covered ((x,y):flagged) mines)
 
 -- Counts the number of mines adjacent to some coordinate
--- TODO utilize getadjacentcoords for cleaner code
 countmines :: Coordinate   -- Coordinate to count adjacent mines for
            -> [Coordinate] -- Coordinates of all mines
            -> Int
@@ -57,17 +56,21 @@ areadjacent :: Coordinate -> Coordinate -> Bool
 areadjacent (x,y) (x1,y1) =
  ((x1 >= (x-1)) && (x1 <= (x+1)) && (y1 >= (y-1)) && (y1 <= (y+1)))
 
---TODO document this useful function
+-- Returns coordinates if given action
+-- Useful for parsing actions in Start.hs
 getcoords :: Action -> Coordinate
 getcoords (Flag coord) = coord
 getcoords (Uncover coord) = coord
 
---TODO document this useful function
+-- Returns True if a result is the end of the game
+-- Useful for parsing results in Start.hs
 endgame :: Result -> Bool
 endgame (EndOfGame _) = True
 endgame _             = False
 
---TODO document this useful function
+-- Returns all adjacent coordinates to some coordinate
+-- Requires size :(. Should have included size in State, so we could use this
+-- in countmines.
 getadjacentcoords :: Coordinate -> Int -> [Coordinate]
 getadjacentcoords (x,y) size = [(a,b) | (a,b) <- lst,
                                         (elem a [0..(size-1)])
@@ -83,8 +86,6 @@ getadjacentcoords (x,y) size = [(a,b) | (a,b) <- lst,
 
 {--
 Test cases
-
-TODO we can reject illegal moves in IO
 
 haskellminesweeper (Uncover (1,0)) (State [(0,0),(0,1)] [(1,1)] [] [(1,0)])
 == EndOfGame False
@@ -116,8 +117,4 @@ haskellminesweeper (Uncover (1,1)) (State [(0,1)] [(0,2),(1,1),(2,0),(2,1),(2,2)
 haskellminesweeper (Uncover (1,1)) (State [] [(0,1),(1,1)] [] [(0,0),(0,2),(1,0),(1,2),(2,0),(2,1),(2,2)])
 == ContinueAfterClear 7 (State [(1,1)] [(0,1)] [] [(0,0),(0,2),(1,0),(1,2),(2,0),(2,1),(2,2)])
 --}
-
-
--------------------------------------------------------------------------------------------------------------------------
-
 
