@@ -9,20 +9,16 @@ import Text.Read (readMaybe)
 -- Repeats if given an invalid response
 userGridSize :: IO Int
 userGridSize = do
-       putStrLn "Enter single positive integer (> 0) for grid length and width"
+       putStrLn "Enter single integer (> 1) for grid length and width"
        line <- getLine
        case (readMaybe line :: Maybe Int) of 
            Nothing ->
                 userGridSize
            Just size ->
-                if zeroOrNegGrid size then
+                if size <= 1 then
                     userGridSize
                 else
                     return size
-
--- Returns true if given a 0 or negative number (use to get valid grid size)
-zeroOrNegGrid :: Int -> Bool
-zeroOrNegGrid num = num <= 0
 
 
 -- Prompts user to enter an integer to dtermine the numer of mines they would like to have
