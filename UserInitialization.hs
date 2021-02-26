@@ -44,7 +44,7 @@ userMineCount board = do
 -- Returns true if given an invalid number of mines
 -- invalid mines are negative or greater than the number of squares
 invalidMineCount :: Int -> Int -> Bool
-invalidMineCount mines gridSize = (mines < 0) || (mines >= gridSize*gridSize)
+invalidMineCount mines gridSize = (mines <= 0) || (mines >= gridSize*gridSize)
 
 
              

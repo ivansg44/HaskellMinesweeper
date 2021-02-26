@@ -24,25 +24,25 @@ randomIndices gridSize num =
 
 
 -- Returns gridLocations at indicated indices
-returnBombLocation :: [Int]             -- List of Indexes to check
-                  -> [Coordinate]      -- List of gridLocations to check
-                  -> [Coordinate]      -- Outputed gridLocations at said indexes
-returnBombLocation (x:xs) grid
+returnMineLocation :: [Int]            -- List of Indexes to check
+                   -> [Coordinate]     -- List of gridLocations to check
+                   -> [Coordinate]     -- Outputed gridLocations at said indexes
+returnMineLocation (x:xs) grid
     |null xs = [grid !! x]
-    |(x:xs) /= [] =  grid !! x : returnBombLocation xs grid
+    |(x:xs) /= [] =  grid !! x : returnMineLocation xs grid
     |otherwise = []
     
 
 
 
 -- Function to create a random mine positions list
-randomBombLocations :: Int             -- gridSize
-                  -> Int               -- number of mines
-                  -> IO [Coordinate]   -- list of bomb locations
-randomBombLocations gridSize num = 
+randomMineLocations :: Int             -- gridSize
+                    -> Int             -- number of mines
+                    -> IO [Coordinate] -- list of mine locations
+randomMineLocations gridSize num =
     do
         indices <- randomIndices gridSize num
-        return (returnBombLocation indices (gridLocations gridSize))
+        return (returnMineLocation indices (gridLocations gridSize))
 
 
 -- Creates initial game state of 4 [Coordinate]
@@ -55,7 +55,7 @@ initialState :: Int                 --gridSize
                   -> IO State       --Starting state
 initialState gridSize num = 
     do
-        mines <- randomBombLocations gridSize num
+        mines <- randomMineLocations gridSize num
         let covered = gridLocations gridSize \\ mines
         return (State [] covered [] mines)
 
